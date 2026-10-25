@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="row between"><h1>Quotations</h1><a class="btn" href="{{ url_for('upload') }}">Upload quotation</a></div>
+<section class="kpis">
+  {% for s in ('parsed', 'needs_review', 'approved', 'failed') %}
+  <div class="kpi"><span>{{ s.replace('_', ' ') }}</span><strong>{{ counts.get(s, 0) }}</strong></div>{% endfor %}
+</section>
+{% if rfqs %}<p>Compare suppliers for: {% for r in rfqs %}<a href="{{ url_for('rfq', ref=r) }}">{{ r }}</a>{{ ', ' if not loop.last }}{% endfor %}</p>{% endif %}
+{% if docs %}
+<table>
+  <thead><tr><th>#</th><th>File</th><th>Supplier</th><th>RFQ</th><th>Source</th><th>Items</th><th>Status</th></tr></thead>
+  <tbody>{% for d in docs %}
+    <tr><td><a href="{{ url_for('document', doc_id=d.id) }}">{{ d.id }}</a></td><td>{{ d.filename }}</td><td>{{ d.supplier or '-' }}</td>
+        <td>{{ d.rfq_ref or '-' }}</td><td>{{ d.kind.replace('_', ' ') }}</td><td>{{ d.n_items }}</td>
+        <td><span class="pill {{ d.status }}">{{ d.status.replace('_', ' ') }}</span></td></tr>{% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="empty">No quotations yet. Upload a PDF or a photo of a quotation to start.</p>{% endif %}
+{% endblock %}

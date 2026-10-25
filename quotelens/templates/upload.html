@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Upload a quotation</h1>
+<form method="post" enctype="multipart/form-data" class="card">
+  <p><input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg" required></p>
+  <p class="note">PDF with a text layer, scanned PDF, or a photo (PNG or JPG). Scans are read with OCR and always go to review.</p>
+  <button>Upload and read</button>
+</form>
+{% endblock %}

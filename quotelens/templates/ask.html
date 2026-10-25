@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Ask about the quotations</h1>
+<form method="post" class="card"><input type="text" name="question" value="{{ question }}" placeholder="Who is cheapest for TMT 12mm? Which quotes are flagged? What are Kaveri's payment terms?" style="width:100%">
+<p><button>Ask</button></p></form>
+{% if result %}<section class="card"><pre class="answer">{{ result.answer }}</pre><small>mode: {{ result.mode }}{% if result.tools %} &middot; tools: {{ result.tools|join(', ') }}{% endif %}</small></section>{% endif %}
+{% endblock %}

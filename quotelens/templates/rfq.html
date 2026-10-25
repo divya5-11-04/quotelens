@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ c.rfq }} - Quotelens{% endblock %}
+{% block body %}
+<h1>{{ c.rfq }}: supplier comparison</h1>
+<p class="note">Rates are per catalog unit. Cheapest ignores quotes with errors (wrong unit, arithmetic, price far from history); those show in red. Scanned quotes are marked and should be checked against the original.</p>
+<table>
+  <thead><tr><th>Material</th>{% for s in c.suppliers %}<th><a href="{{ url_for('document', doc_id=s.doc_id) }}">{{ s.supplier }}</a>{{ ' (scan)' if s.kind != 'pdf_text' }}</th>{% endfor %}<th>Spread</th></tr></thead>
+  <tbody>{% for r in c.rows %}
+    <tr><td>{{ r.material }} <small>per {{ r.unit }}</small></td>
+      {% for s in c.suppliers %}{% set q = r.quotes.get(loop.index0) %}
+      <td class="{{ 'best' if r.best == loop.index0 }} {{ 'bad' if q and q.problem }}">
+        {% if q and q.rate %}{{ '{:,.2f}'.format(q.rate) }}{% if q.flags %}<small> {{ q.flags|join(', ') }}</small>{% endif %}{% else %}<span class="empty">-</span>{% endif %}</td>{% endfor %}
+      <td>{{ '%.0f%%' % r.spread_pct if r.spread_pct is not none else '-' }}</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% if c.comparable_items %}
+<p>Totals over the {{ c.comparable_items }} material(s) every supplier quoted cleanly:
+{% for s in c.suppliers %}<strong>{{ s.supplier }}</strong> {{ '{:,.2f}'.format(c.totals_on_comparable[loop.index0]) if c.totals_on_comparable[loop.index0] is not none else '-' }}{{ ' &middot; '|safe if not loop.last }}{% endfor %}</p>
+{% else %}<p class="note">No material was quoted cleanly by every supplier, so no like-for-like total is shown.</p>{% endif %}
+{% endblock %}

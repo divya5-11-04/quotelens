@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Document {{ d.id }} - Quotelens{% endblock %}
+{% block body %}
+<p><a href="{{ url_for('index') }}">&larr; All documents</a></p>
+<div class="row between">
+  <h1>{{ d.supplier or d.filename }} <span class="pill {{ d.status }}">{{ d.status.replace('_', ' ') }}</span></h1>
+  {% if d.status in ('parsed', 'needs_review') %}
+  <form method="post" action="{{ url_for('approve', doc_id=d.id) }}"><button>Approve and add clean items to price history</button></form>{% endif %}
+</div>
+<p class="note">{{ d.filename }} &middot; {{ d.kind.replace('_', ' ') }} &middot; RFQ {{ d.rfq_ref or '-' }} &middot; quote {{ d.quote_no or '-' }} &middot; {{ d.quote_date or 'no date' }}
+{% if d.rfq_ref %}&middot; <a href="{{ url_for('rfq', ref=d.rfq_ref) }}">compare suppliers</a>{% endif %}</p>
+{% if d.message %}<p class="banner">{{ d.message }}</p>{% endif %}
+{% if items %}
+<table>
+  <thead><tr><th>#</th><th>As written</th><th>Qty</th><th>Rate</th><th>Amount</th><th>Material</th><th>Checks</th></tr></thead>
+  <tbody>{% for i in items %}
+    <tr><td>{{ i.line_no }}</td><td>{{ i.raw_desc }}</td><td>{{ '%g' % i.qty }} {{ i.unit }}</td>
+        <td>{{ '{:,.2f}'.format(i.rate) }}</td><td>{{ '{:,.2f}'.format(i.amount) }}</td>
+        <td>
+          <form method="post" action="{{ url_for('item_match', item_id=i.id) }}" class="inline">
+            <select name="catalog_id" onchange="this.form.submit()">
+              <option value="" disabled {{ 'selected' if not i.catalog_id }}>unmatched</option>
+              {% for m in catalog %}<option value="{{ m.id }}" {{ 'selected' if m.id == i.catalog_id }}>{{ m.name }}</option>{% endfor %}
+            </select>
+          </form>
+          <small>{{ '%.0f%%' % (i.match_score * 100) }} match{{ ', set by reviewer' if i.overridden }}</small></td>
+        <td>{% for f in i.flag_list %}<div class="flag {{ f.severity }}" title="{{ f.message }}">{{ f.code.replace('_', ' ') }}: {{ f.message }}</div>{% else %}<span class="ok">ok</span>{% endfor %}</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% else %}<p class="empty">No line items were read from this document.</p>{% endif %}
+<details><summary>Text read from the file</summary><pre>{{ d.raw_text }}</pre></details>
+{% endblock %}

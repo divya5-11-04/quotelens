@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Quotelens{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="{{ url_for('index') }}">Quotelens</a>
+  <nav><a href="{{ url_for('index') }}">Documents</a><a href="{{ url_for('upload') }}">Upload</a><a href="{{ url_for('ask') }}">Ask</a></nav>
+</header>
+<main>
+{% for m in get_flashed_messages() %}<p class="banner">{{ m }}</p>{% endfor %}
+{% block body %}{% endblock %}
+</main>
+</body>
+</html>
